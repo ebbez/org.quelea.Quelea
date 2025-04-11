@@ -1,0 +1,59 @@
+id: org.quelea.Quelea
+
+runtime: org.freedesktop.Platform
+runtime-version: '24.08'
+
+sdk: org.freedesktop.Sdk
+sdk-extensions:
+  - org.freedesktop.Sdk.Extension.openjdk21
+
+command: quelea
+
+build-options:
+  prepend-path: "/usr/lib/sdk/openjdk21/bin"
+  env:
+    JAVA_HOME: /usr/lib/sdk/openjdk21/jvm/openjdk-21
+
+  build-args:
+    - --share=network
+    - --env=PATH=/app/jre/bin:/app/bin:/usr/bin
+    - --env=JAVA_HOME=/app/jre
+
+modules:
+  - name: openjdk
+    buildsystem: simple
+    build-commands:
+      - /usr/lib/sdk/openjdk21/install.sh
+
+  - name: quelea
+    buildsystem: simple
+    build-commands:
+      - cd Quelea && gradle jar --debug && gradle copyToDist
+      - install -Dm755 -t /app/bin quelea
+      - cp -a Quelea/dist/. /app/
+
+    sources:
+      - type: git
+        url: https://github.com/quelea-projection/quelea.git
+        commit: a222f05e56892742d224ad108bc8b51c9f3faecb
+      - type: patch
+        path: patches/flatpakfatjar.patch
+        use-git: true
+      - type: script
+        dest-filename: quelea
+        commands:
+          - cd /app
+          - java --add-opens java.base/java.nio=ALL-UNNAMED -jar Quelea.jar
+
+finish-args:
+  # X11
+  - --socket=x11
+  # GPU acceleration if needed
+  - --device=dri
+  # Needs to talk to the network:
+  - --share=network
+  # Needs to save files locally
+  - --filesystem=xdg-documents
+  # Environment variables for running Java apps
+  - --env=PATH=/app/jre/bin:/app/bin:/usr/bin
+  - --env=JAVA_HOME=/app/jre
