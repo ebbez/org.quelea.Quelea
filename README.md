@@ -4,4 +4,4 @@ My personal Quelea development (of which a part is the Quelea Flatpak) has been 
 
 https://github.com/ebbez/Quelea
 
-https://github.com/ebbez/Quelea/blob/flatpak/flatpak/org.quelea.Quelea.yml
+https://github.com/ebbez/Quelea/blob/flatpak-current-sha/flatpak/org.quelea.Quelea.yml
